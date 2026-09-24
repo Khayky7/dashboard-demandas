@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Atlas DD — Dashboard de Demandas</title>
-<style>.oculto{display:none !important;}</style>
+<style>
+.oculto{display:none !important;}
+.col-acoes{position:sticky;right:0;z-index:2;background:#112038;box-shadow:-10px 0 12px -10px rgba(0,0,0,.6);}
+</style>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
@@ -109,7 +112,7 @@
 <div id="tela-login" class="oculto min-h-screen flex items-center justify-center p-4">
   <div class="card p-6 max-w-sm w-full fade-up">
     <h1 class="text-2xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
-    <p class="text-xs mt-1 mb-5" style="color:var(--muted);">Dashboard de Demandas • versão 3</p>
+    <p class="text-xs mt-1 mb-5" style="color:var(--muted);">Dashboard de Demandas • versão 4</p>
     <form id="form-login" class="space-y-3">
       <div>
         <label for="l-email" class="block text-sm font-medium mb-1" style="color:var(--muted);">E-mail</label>
@@ -307,7 +310,7 @@
                 <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Saída</th>
                 <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Status</th>
                 <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Prioridade</th>
-                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Ações</th>
+                <th class="col-acoes text-left py-2 px-2 font-bold" style="color:var(--muted);">Ações</th>
               </tr>
             </thead>
             <tbody id="lista-corpo"></tbody>
@@ -717,7 +720,7 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
             ${isAlta ? '🔴' : '🟡'} ${d.prioridade}
           </span>
         </td>
-        <td class="py-2.5 px-2">
+        <td class="col-acoes py-2.5 px-2">
           <div class="flex gap-1.5">
             <button data-acao="editar" data-id="${d.id}" class="action-btn" title="Editar"
               style="background:rgba(148,163,184,.12);color:var(--text);">✎</button>
