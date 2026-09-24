@@ -6,10 +6,27 @@
 <title>Atlas DD — Dashboard de Demandas</title>
 <style>
 .oculto{display:none !important;}
-.col-acoes{position:sticky;right:0;z-index:2;background:#112038;box-shadow:-10px 0 12px -10px rgba(0,0,0,.6);}
-.tabela-scroll{overflow:auto;max-height:65vh;}
-.tabela-scroll thead th{position:sticky;top:0;z-index:3;background:#112038;}
-.tabela-scroll thead th.col-acoes{z-index:4;}
+.tabela-scroll{overflow-y:auto;overflow-x:hidden;max-height:65vh;}
+.tabela-demandas{table-layout:fixed;width:100%;border-collapse:collapse;}
+.tabela-demandas th{position:sticky;top:0;z-index:3;background:#112038;text-align:left;padding:8px 4px;font-weight:700;color:#94a3b8;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tabela-demandas td{padding:8px 4px;vertical-align:middle;overflow:hidden;font-size:12px;}
+.tabela-demandas .titulo-cell{overflow-wrap:anywhere;}
+.tabela-demandas .obs-cell{max-width:100%;}
+.cel-corte{white-space:nowrap;text-overflow:ellipsis;}
+.cel-data{white-space:nowrap;color:#94a3b8;font-size:11px;}
+.tag-mini{display:inline-block;max-width:100%;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid rgba(148,163,184,.15);vertical-align:middle;}
+.acoes{display:flex;gap:4px;}
+.acoes .action-btn{width:24px;height:24px;font-size:11px;flex:0 0 auto;}
+@media (max-width:640px){
+  .tabela-demandas colgroup,.tabela-demandas thead{display:none;}
+  .tabela-demandas,.tabela-demandas tbody,.tabela-demandas tr,.tabela-demandas td{display:block;width:100%;}
+  .tabela-demandas tr{border:1px solid rgba(148,163,184,.12) !important;border-radius:12px;padding:8px 10px;margin-bottom:10px;}
+  .tabela-demandas td{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;text-align:right;}
+  .tabela-demandas td::before{content:attr(data-label);color:#94a3b8;font-size:11px;font-weight:600;text-align:left;flex:0 0 auto;}
+  .tabela-demandas td[data-label="Título"]{display:block;text-align:left;padding-bottom:6px;}
+  .tabela-demandas td[data-label="Título"]::before{display:none;}
+  .tabela-demandas .obs-cell{max-width:none;}
+}
 @media (min-width:1024px){
   .lista-wrap{position:relative;min-height:420px;}
   .lista-wrap>.card{position:absolute;inset:0;}
@@ -120,7 +137,7 @@
 <div id="tela-login" class="oculto min-h-screen flex items-center justify-center p-4">
   <div class="card p-6 max-w-sm w-full fade-up">
     <h1 class="text-2xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
-    <p class="text-xs mt-1 mb-5" style="color:var(--muted);">Dashboard de Demandas • versão 6</p>
+    <p class="text-xs mt-1 mb-5" style="color:var(--muted);">Dashboard de Demandas • versão 7</p>
     <form id="form-login" class="space-y-3">
       <div>
         <label for="l-email" class="block text-sm font-medium mb-1" style="color:var(--muted);">E-mail</label>
@@ -286,17 +303,22 @@
         </div>
 
         <div class="tabela-scroll rounded-lg">
-          <table class="w-full text-xs">
+          <table class="tabela-demandas w-full text-xs">
+            <colgroup>
+              <col style="width:17%"><col style="width:12%"><col style="width:11%">
+              <col style="width:10%"><col style="width:10%"><col style="width:13%">
+              <col style="width:12%"><col style="width:15%">
+            </colgroup>
             <thead>
               <tr style="border-bottom:2px solid var(--border);">
-                <th class="text-left py-2 px-2 font-bold" style="color:var(--accent-light);">Título</th>
-                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Frente</th>
-                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Origem</th>
-                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Entrada</th>
-                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Saída</th>
-                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Status</th>
-                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Prioridade</th>
-                <th class="col-acoes text-left py-2 px-2 font-bold" style="color:var(--muted);">Ações</th>
+                <th style="color:var(--accent-light);">Título</th>
+                <th>Frente</th>
+                <th>Origem</th>
+                <th>Entrada</th>
+                <th>Saída</th>
+                <th>Status</th>
+                <th>Prioridade</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody id="lista-corpo"></tbody>
@@ -386,8 +408,8 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     return `${d}/${m}/${a}`;
   }
   const FRENTE_CURTA = {
-    'Credenciamento':'Credenciamento',
-    'Formalização de Contrato':'Formalização',
+    'Credenciamento':'Credenc.',
+    'Formalização de Contrato':'Formaliz.',
     'Conversão de PA para Faturado':'Conv. PA',
     'Outros':'Outros'
   };
@@ -717,26 +739,22 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
       const bgPr = isAlta ? 'var(--danger-soft)' : 'var(--warning-soft)';
 
       tr.innerHTML = `
-        <td class="py-2.5 px-2">
-          <div class="titulo-cell">${esc(d.titulo)}</div>
+        <td data-label="Título">
+          <div class="titulo-cell" title="${esc(d.titulo)}">${esc(d.titulo)}</div>
           ${d.obs ? `<div class="obs-cell" title="${esc(d.obs)}">📝 ${esc(d.obs)}</div>` : ''}
         </td>
-        <td class="py-2.5 px-2" title="${esc(d.frente)}" style="white-space:nowrap;">${esc(FRENTE_CURTA[d.frente] || d.frente)}</td>
-        <td class="py-2.5 px-2">${esc(d.origem)}</td>
-        <td class="py-2.5 px-2" style="color:var(--muted);font-size:11px;white-space:nowrap;">${dataCurta(d.entrada)}</td>
-        <td class="py-2.5 px-2" style="color:var(--muted);font-size:11px;white-space:nowrap;">${dataCurta(d.saida)}</td>
-        <td class="py-2.5 px-2">
-          <span class="tag" style="background:${bgSt};color:${corSt};border:1px solid rgba(148,163,184,.15);">
-            ${isPendente ? '⏳' : '✅'} ${d.status}
-          </span>
+        <td data-label="Frente" class="cel-corte" title="${esc(d.frente)}">${esc(FRENTE_CURTA[d.frente] || d.frente)}</td>
+        <td data-label="Origem" class="cel-corte" title="${esc(d.origem)}">${esc(d.origem)}</td>
+        <td data-label="Entrada" class="cel-data">${dataCurta(d.entrada)}</td>
+        <td data-label="Saída" class="cel-data">${dataCurta(d.saida)}</td>
+        <td data-label="Status">
+          <span class="tag-mini" style="background:${bgSt};color:${corSt};">${d.status}</span>
         </td>
-        <td class="py-2.5 px-2">
-          <span class="tag" style="background:${bgPr};color:${corPr};border:1px solid rgba(148,163,184,.15);">
-            ${isAlta ? '🔴' : '🟡'} ${d.prioridade}
-          </span>
+        <td data-label="Prioridade">
+          <span class="tag-mini" style="background:${bgPr};color:${corPr};">${d.prioridade}</span>
         </td>
-        <td class="col-acoes py-2.5 px-2">
-          <div class="flex gap-1.5">
+        <td data-label="Ações">
+          <div class="acoes">
             <button data-acao="editar" data-id="${d.id}" class="action-btn" title="Editar"
               style="background:rgba(148,163,184,.12);color:var(--text);">✎</button>
             <button data-acao="alternar" data-id="${d.id}" class="action-btn" title="${isPendente ? 'Concluir' : 'Reabrir'}"
