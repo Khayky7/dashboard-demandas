@@ -4,8 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Atlas DD — Dashboard de Demandas</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%223%200%20100%20100%22%3E%3Crect%20x%3D%228%22%20y%3D%2240%22%20width%3D%2216%22%20height%3D%2240%22%20rx%3D%223%22%20fill%3D%22%230891b2%22%3E%3C/rect%3E%3Crect%20x%3D%2228%22%20y%3D%2228%22%20width%3D%2216%22%20height%3D%2252%22%20rx%3D%223%22%20fill%3D%22%2322d3ee%22%3E%3C/rect%3E%3Crect%20x%3D%2248%22%20y%3D%2236%22%20width%3D%2216%22%20height%3D%2236%22%20rx%3D%223%22%20fill%3D%22%2310b981%22%3E%3C/rect%3E%3Cpath%20d%3D%22M64%2020%20A30%2030%200%200%201%2064%2080%22%20fill%3D%22none%22%20stroke%3D%22%2310b981%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%3E%3C/path%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAABmJLR0QA/wD/AP+gvaeTAAAMSklEQVR4nO3de3AV1R3A8fPYvY+EPCFcQh4EEkh4GKDBVsYgDtRqq4y2dbSj9g/b6Vir005b/+i0/9VOZ2o743RaHdqp9jFV7FhUtFUYpRSEAhFiSngnQiAhEBJuXiS5d3fPOf1Dx8E05+7uvedc7np/nz+ZvXsP+uXevbtnz+JwyQIEwEzI9R4AyF0QB5CCOIAUxAGkIA4gBXEAKYgDSEEcQAriAFIQB5CCOIAUxAGkIA4gBXEAKYgDSEEcQAriAFIQB5CCOIAUxAGkIA4gBXEAKYgDSEEcQAriAFIQB5CCOIAUxAGkIA4gBXEAKYgDSEEcQAriAFIQB5CCOIAUxAGkIA4gBXEAKYgDSEEcQAriAFLG9R5A8OCoSTc20uYqVBxGCCGHo0mbjyfQWEIMXhUDY/zCqBgYR0Jc75FmCuLwBy+uCD+xEZcVTPvzaZ/AImGLs3F2coCfuCiODwjLydoIFcKw9rl3uGJW+Kl7cGHI16uExfixi6ztHD/YI64mNY1NB4jDB/O7643W+vRf73DW3st2nmIdFwLxpUONSOn1HkNAmDT02C2YZnAITzCpKqXr6o3WRUgg0TuCGFc3PvUgDq9wRZG5aYWaXRVF6Gdq6IYliAneE0c8Rz9FIA6vcNgw7lITx0c7jJh0VbVxS4MYnhR9Iwr3rArE4VnCMTYswQX+jkZd4cIQXbuQNsX46csoxw5XIQ4/DEqb5+vYMY4V0Y1LUMLh3UM69p8eiMMH/sEgbYzhuUU6do4poauqaeNcdqQfJXLivAjE4QcXfH8PKjBJ3WxEsI53wLFio7Wen74srkzo2L+/wcB5jnSURo3llaisAFGCTYJmhVFJlFQU4apiXBhWsH+bWb/fx3Z3K9hVBiAOxfDsQlI/hyybR5qrSHUGn8pCOC+/b/+9Q93QfIM4NMKxYnpTHV1fT6rL0tuD8+Yx+89t1+t0Khxz6DSR5KcG2I6TvLMfR0xSVYKwvyMVsngunhXmHX2aBpgaxJENYmiCHehh/zmDCsOktsxXImRxBQ5R3tmvb3gyEEcWjSd52zne3kdqyvCcQu+vI00xNGHxrkF9Q5tRYI456LzK4ocfCbd8Fhd6/c8qkgnrUNvoc5vZxQtax+YbxsYXmowH1+CI6fUlnFtP7WTtvTqHNV0w4jBqF1Q8+0dSms5hHR8dGfzOw865HtWDyhSeVxz63q2kfo7H7cWklfzx66J/TOuorhWMr5Xynz5lLmpI77U4Egk3LZ94c1vOTaG4mmR7uklplCzy1Ac2KVlWyf7dhViW/iIBiIMUFZc+8RO/x/nXonNjiQN7+eBlhaNSgwt2uBdN2bR5vpe/IC6J4mgoaz9eAjD7nJT5O7yfkRHTcsFMCecfR61n3vU48ce4YylZUal7SB8KQByZl4EQwnouhajC9nTbv92DuIc+MA490opD2ZgZHoQ48oOz74z1hwNetsSxIvqVlbrHgyCOnMLeOWm/esTLluamFTimZebAtSCO3OK8dJi1ezjeNKlxf4vuwUAcOUYI65k9Iu4+mcO4eSGpLdc6Fogj94wnrGfedT8rgzH9crPWgeT37ZAY05YauqYWRb2exhaMi+4htvO0SNr6xsU7+9muLrphSerNjLV1zpYicXlc0zDyOA6DhL6/gd5Y6/uFrfXG7U3JJ7eLIY0z+awXDkVvrEVFkVQbEWLcsdT+S5umMeTv14p5T3M6ZSCEEMKVJaHH1ys5ASM1nrC3/td1K2N9AzKppiHkbxx0Q2MmLyfL5pEb9J51dd4+6f7hVBShLTWaBpCvcRgEz56+jIJfpDbNyX9e2cx5vdN1K7ouzUuSrnQec1CKQ16nYotkEnGmcTDTEJz5lwI2tP/TYru6jPtXp57RTlZW4YgpEuoPkPXEUd+ENt6Fq2q9/w/AnKOuE2LHK2go966dXj8iabPd3caXlqfYBocoWVnFDvYof3f17eNlK/HXH8XVC/z90yQENS5H3/oBKvM6+SVPsF1drtvQ1dU63lp1HJSgO+9DJM3d4mghvvtrakcUdPxcnLvdg0+Wa7mIrzgOPK8GFRVntItFjahE84Fe0LC2c6k3wLEiXO5jxrJHiuMQ0Ux/AiCEMs3rU8fL1C/SoP7rWPXXipLTQlpPLgUQ7x50PVuP69RfhMvX8xzB4nBxJp56Ex1XaCGOYOBnXRZ1wfPUz/2BOIKB97r8YNGxpAzEEQxiwOVeJhwxseeJBx5BHMEg4pPuG5VE1b4pxBEQownXTdQsKnQNiCMYxJTtPnEwrHhiB8QREJy73yJrQBwgWyCOgCAEUbcTx47iCTEQRzDgAtP9qkJS8dK2EEdAFKecho4QQkhMWGrfE+IIBjzbwxX5kSm1bwpxBAOOuUxjEAlb+TRSiCMYSHVJ6g103PcGcQQDWTQ79QbiovqF5CCOIDAIdltUjp8fVv62EEcAkIYK13WeRM8V9e+rfI9AObLK/c4DHY94gjgCgH6uLvUGYmBcDHu4pu8TxJHryMLZpMrlpwo/qmXZfIgj19H17vdJs/e1LFsLceQ0HDHp+sWptxEW40fgkyP/0A1LcKHLk2x5R5+OW+wRxJHTTGp4eEA6e/cDTe8PceQu47Ym9+ttYwl2+LymAUAcuao4Yn7VfQ1rZ3cXcjytqJ8GiCNHhR660WUpQYQQ4872E/rGAHHkIrKqyssvWGf/WTF4VeMw9O0apKk4Enp0nfukQCGYt1X00wZx5BhCQo+vx2Xuy5w4+87wXvVXYj8xFq17B36ZD7bQVVXu29nMeald92Agjhxi3L7U2HSDly3tN47qW/L8YxBHrqDr6s1v3ORlS3FpjL3ivvJ15vJ1YXwVD99U+ChSeuvi0Ldv9rTelRDW5r3CUnyLyozyNQ6biZEpXJrRmgViWM2tAMbdzeYDLR5XQnPeOs6PX1Lyvq7y92uFbT+eyctF0mYdGT88PERDj91iPrjGYxn87BX7xUOZvqln+RuHva0z/X+CQtjPHUBj7mtmpIDnF4efvMvLya6P3nPCsp7ehazsrRCfr18rCCHGkz/fYW66gdy8CJd5/n6xueiJ29uO8GMX039rjI0vLjMeaPHxeFjGrV/vEpey9yB7lNdxIIQsZm/tQFs7svmepL7C/OZav2vK2n86yDsuaBqSTH7HkV2kutS4dzVdW+d3FV57a4ezQ+MFNhmIQz+MydKYcecKuqYmjcWZnTePOX/TfjJ0RhCHRqSqhK5dSFsb8Pw0V3N33ui0/5q9nyfTQBxKYYznzqINFbgxRlfOx5UutxSkIoSz5bD9mt7rrqlBHGkpjRrLK1FZAaIEhSguDOHyQlxRiOeXKlkpVljM2bzX2atrcqhHEIc/OGQYD60xPt+EtD3gTcQnrF/t1HF7o1+K48CTKm7KS3zi5BIfU/Djnl9VcQ3TIKEf3UZWaHks0odYe5/17J4MT6+povphPBd7UXwwo12MDaOhgWv/gA/Hk+3vZTSqZMI66v4MTlfGnSv0lSGStv38fusXb+dIGUj96XPOxasvpP8QUCHQW6/+/+XOkV/+jE+l/5k0/txmBZ8cGBt3LM10JxK840Lyh68520+ovNSbMWpEShXvcnQY9Z7F1XWowOdTx0biaNsWcXyG85V8bNQ6uN9sbKJz5vraJR+Ojz779NWXX/Q3kpng8kLzvtWZ72caMTBu/26f/dJhpHotwMzhcMkCPTvGqLQcR732IaYm0cgV1383tCJGy10WQPoYn5pw+vpUPcsYx4ojv7lXya4+JOITzmudzjsn9d14kiFtv1aEQMNXxLDi5WbY4AAbHHDfTgMRnxAWwyEF64vzC6POP4+x3V3IzuJDuP2Dn7Ke2Yy19Rit9WnvQFiMHzrv/Os07+zPqWMLGYjDB2fLYbq6xvW292mE5fAj/exgD3/vvJjMuQOLFLQdc3xK4cUV4Sc2ut5XIiYscWaInbrMT1zipwayOUNHIYjDNxw16cZG2lyFisMIIWQ5YspB4wkxMiWGJsSlUd43KoY03qWYNRAHkMrfOaTAFcQBpCAOIAVxACmIA0hBHEAK4gBSEAeQgjiAFMQBpCAOIAVxACmIA0hBHEAK4gBSEAeQgjiAFMQBpCAOIAVxACmIA0hBHEAK4gBSEAeQgjiAFMQBpCAOIAVxACmIA0hBHEAK4gBSEAeQgjiAFMQBpCAOIAVxACmIA0hBHEAK4gBSEAeQgjiA1P8AbCCnezUI02EAAAAASUVORK5CYII=">
+<meta name="apple-mobile-web-app-title" content="Atlas DD">
+<meta name="theme-color" content="#070f1f">
 <style>
 .oculto{display:none !important;}
+.logo-atlas{flex:0 0 auto;display:block;}
 .tabela-scroll{overflow-y:auto;overflow-x:hidden;max-height:65vh;}
 .tabela-demandas{table-layout:fixed;width:100%;border-collapse:collapse;}
 .tabela-demandas th{position:sticky;top:0;z-index:3;background:#112038;text-align:left;padding:8px 4px;font-weight:700;color:#94a3b8;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -127,7 +132,10 @@
 <!-- ===================== TELA: CONFIGURAÇÃO PENDENTE ===================== -->
 <div id="tela-config" class="oculto min-h-screen flex items-center justify-center p-4">
   <div class="card p-6 max-w-md w-full">
-    <h1 class="text-2xl font-extrabold mb-2"><span class="brand-gradient">Atlas DD</span></h1>
+    <div class="flex items-center gap-3 mb-3">
+      <svg class="logo-atlas" viewBox="3 0 100 100" width="40" height="40" aria-hidden="true" focusable="false"><rect x="8" y="40" width="16" height="40" rx="3" fill="#0891b2"></rect><rect x="28" y="28" width="16" height="52" rx="3" fill="#22d3ee"></rect><rect x="48" y="36" width="16" height="36" rx="3" fill="#10b981"></rect><path d="M64 20 A30 30 0 0 1 64 80" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round"></path></svg>
+      <h1 class="text-2xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
+    </div>
     <p class="text-sm mb-3" id="config-msg">Falta conectar ao Supabase.</p>
     <p class="text-xs" style="color:var(--muted);">Abra este arquivo, procure por <b>SUPABASE_URL</b> e <b>SUPABASE_KEY</b> perto do fim e cole a URL do projeto e a chave pública (Project Settings → API).</p>
   </div>
@@ -136,8 +144,13 @@
 <!-- ===================== TELA: LOGIN ===================== -->
 <div id="tela-login" class="oculto min-h-screen flex items-center justify-center p-4">
   <div class="card p-6 max-w-sm w-full fade-up">
-    <h1 class="text-2xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
-    <p class="text-xs mt-1 mb-5" style="color:var(--muted);">Dashboard de Demandas • versão 7</p>
+    <div class="flex items-center gap-3 mb-5">
+      <svg class="logo-atlas" viewBox="3 0 100 100" width="52" height="52" aria-hidden="true" focusable="false"><rect x="8" y="40" width="16" height="40" rx="3" fill="#0891b2"></rect><rect x="28" y="28" width="16" height="52" rx="3" fill="#22d3ee"></rect><rect x="48" y="36" width="16" height="36" rx="3" fill="#10b981"></rect><path d="M64 20 A30 30 0 0 1 64 80" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round"></path></svg>
+      <div>
+        <h1 class="text-2xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
+        <p class="text-xs mt-0.5" style="color:var(--muted);">Dashboard de Demandas • versão 9</p>
+      </div>
+    </div>
     <form id="form-login" class="space-y-3">
       <div>
         <label for="l-email" class="block text-sm font-medium mb-1" style="color:var(--muted);">E-mail</label>
@@ -160,9 +173,12 @@
   <!-- CABEÇALHO -->
   <div class="mb-4 fade-up" style="animation-delay:.05s;">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      <div>
-        <h1 class="text-2xl md:text-3xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
-        <p class="text-xs mt-1" style="color:var(--muted);">Dashboard de Demandas • <span id="usuario-email"></span></p>
+      <div class="flex items-center gap-3">
+        <svg class="logo-atlas" viewBox="3 0 100 100" width="46" height="46" aria-hidden="true" focusable="false"><rect x="8" y="40" width="16" height="40" rx="3" fill="#0891b2"></rect><rect x="28" y="28" width="16" height="52" rx="3" fill="#22d3ee"></rect><rect x="48" y="36" width="16" height="36" rx="3" fill="#10b981"></rect><path d="M64 20 A30 30 0 0 1 64 80" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round"></path></svg>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
+          <p class="text-xs mt-1" style="color:var(--muted);">Dashboard de Demandas • <span id="usuario-email"></span></p>
+        </div>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <div id="status-box" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);">
@@ -769,6 +785,14 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
   }
 
   /* ---------- Gráficos ---------- */
+  // Paleta dos gráficos: índigo/violeta (pendente) e ciano (concluída)
+  const COR = {
+    pend: ['#a78bfa', '#6366f1'],
+    conc: ['#67e8f9', '#0891b2']
+  };
+  const grad = (c, horizontal) => new echarts.graphic.LinearGradient(0, 0, horizontal ? 1 : 0, horizontal ? 0 : 1,
+    [{ offset: 0, color: c[0] }, { offset: 1, color: c[1] }]);
+
   function atualizarGraficos(){
     if($('app').classList.contains('oculto')) return;
     const rotulos = ['Credenciamento','Formalização','Conversão PA','Outros'];
@@ -786,13 +810,15 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     chart1.setOption({
       backgroundColor: 'transparent',
       tooltip:{trigger:'axis',axisPointer:{type:'shadow'},backgroundColor:'#1a2d4a',borderColor:'#06b6d4',textStyle:{color:'#fff'}},
-      legend:{data:['Pendente','Concluída'],textStyle:{color:'#94a3b8',fontSize:11},top:0},
+      legend:{data:['Pendente','Concluída'],icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{color:'#94a3b8',fontSize:11},top:0},
       grid:{left:'2%',right:'3%',bottom:'2%',top:'14%',containLabel:true},
       xAxis:{type:'category',data:rotulos,axisLabel:{color:'#94a3b8',fontSize:11,interval:0},axisLine:{lineStyle:{color:'rgba(148,163,184,.12)'}}},
       yAxis:{type:'value',minInterval:1,axisLabel:{color:'#94a3b8',fontSize:10},splitLine:{lineStyle:{color:'rgba(148,163,184,.06)'}}},
       series:[
-        {name:'Pendente',type:'bar',stack:'total',data:pend,itemStyle:{color:'#f97316'},barWidth:'45%',cursor:'pointer'},
-        {name:'Concluída',type:'bar',stack:'total',data:conc,itemStyle:{color:'#10b981',borderRadius:[4,4,0,0]},barWidth:'45%',cursor:'pointer',
+        {name:'Pendente',type:'bar',stack:'total',data:pend.map((v,i) => ({value:v,itemStyle:{borderRadius: conc[i] ? [0,0,4,4] : [6,6,4,4]}})),itemStyle:{color:grad(COR.pend)},barWidth:'42%',cursor:'pointer',
+         emphasis:{itemStyle:{shadowBlur:14,shadowColor:'rgba(99,102,241,.45)'}}},
+        {name:'Concluída',type:'bar',stack:'total',data:conc,itemStyle:{color:grad(COR.conc),borderRadius:[6,6,0,0]},barWidth:'42%',cursor:'pointer',
+         emphasis:{itemStyle:{shadowBlur:14,shadowColor:'rgba(34,211,238,.45)'}},
          label:{show:true,position:'top',color:'#94a3b8',fontSize:11,formatter:p => (pend[p.dataIndex]+conc[p.dataIndex]) || ''}}
       ]
     });
@@ -812,18 +838,20 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     chart2.setOption({
       backgroundColor: 'transparent',
       tooltip:{trigger:'item',formatter:'{b}: {c} ({d}%)',backgroundColor:'#1a2d4a',borderColor:'#06b6d4',textStyle:{color:'#fff'}},
-      legend:{bottom:0,textStyle:{color:'#94a3b8',fontSize:11}},
+      legend:{bottom:0,icon:'circle',itemWidth:8,itemHeight:8,textStyle:{color:'#94a3b8',fontSize:11}},
       title:{
         text: `${pct}%`, subtext:'concluídas', left:'center', top:'36%',
         textStyle:{color:'#f8fafc',fontSize:22,fontWeight:700},
         subtextStyle:{color:'#94a3b8',fontSize:11}
       },
       series:[{
-        type:'pie',radius:['48%','70%'],center:['50%','45%'],cursor:'pointer',
+        type:'pie',radius:['52%','72%'],center:['50%','45%'],cursor:'pointer',padAngle:3,
+        itemStyle:{borderRadius:8,borderColor:'#112038',borderWidth:2},
+        emphasis:{scale:true,scaleSize:6},
         label:{show:false},
         data:[
-          {value:totalPend,name:'Pendente',itemStyle:{color:'#f97316'}},
-          {value:totalConc,name:'Concluída',itemStyle:{color:'#10b981'}}
+          {value:totalPend,name:'Pendente',itemStyle:{color:grad(COR.pend,true)}},
+          {value:totalConc,name:'Concluída',itemStyle:{color:grad(COR.conc,true)}}
         ]
       }]
     });
