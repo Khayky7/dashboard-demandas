@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="pt-BR" style="margin:0;padding:0;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas DD — Dashboard de Demandas</title>
+<style>.oculto{display:none !important;}</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  const s=document.createElement('style');
+  s.textContent=`
+    :root{
+      --bg:#070f1f;--bg-alt:#0b1629;--card:#112038;--card-hover:#1a2d4a;
+      --text:#f8fafc;--muted:#94a3b8;
+      --accent:#06b6d4;--accent-light:#22d3ee;--accent-soft:rgba(6,182,212,.12);
+      --accent2:#f97316;--accent2-light:#fb923c;--accent2-soft:rgba(249,115,22,.12);
+      --success:#10b981;--success-light:#34d399;--success-soft:rgba(16,185,129,.12);
+      --danger:#ef4444;--danger-light:#f87171;--danger-soft:rgba(239,68,68,.12);
+      --warning:#f59e0b;--warning-light:#fbbf24;--warning-soft:rgba(245,158,11,.12);
+      --border:rgba(148,163,184,.12);
+      --shadow-soft:0 4px 20px rgba(0,0,0,.25);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{min-height:100%;}
+    body{
+      font-family:"Inter",sans-serif;
+      background:linear-gradient(135deg,var(--bg) 0%,var(--bg-alt) 100%);
+      background-attachment:fixed;
+      color:var(--text);
+    }
+    .card{
+      background:var(--card);border:1px solid var(--border);border-radius:16px;
+      box-shadow:var(--shadow-soft);
+      transition:border-color .3s ease,box-shadow .3s ease;
+    }
+    .card:hover{border-color:rgba(6,182,212,.2);box-shadow:0 8px 30px rgba(0,0,0,.35);}
+    .card-accent{background:linear-gradient(135deg,var(--card),rgba(6,182,212,.05));}
+    .card-orange{background:linear-gradient(135deg,var(--card),rgba(249,115,22,.05));}
+    .card-green{background:linear-gradient(135deg,var(--card),rgba(16,185,129,.05));}
+    .card-red{background:linear-gradient(135deg,var(--card),rgba(239,68,68,.05));}
+    .btn-primary{
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      transition:all .3s ease;
+    }
+    .btn-primary:hover{transform:scale(1.02);box-shadow:0 6px 20px rgba(6,182,212,.25);}
+    .btn-primary:active{transform:scale(.98);}
+    .btn-primary:disabled{opacity:.6;cursor:wait;transform:none;}
+    .btn-sec{
+      padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;
+      background:var(--card);border:1px solid var(--border);color:var(--text);
+      transition:border-color .2s ease,background .2s ease;
+    }
+    .btn-sec:hover{border-color:var(--accent);background:var(--card-hover);}
+    .btn-sec:focus-visible,.action-btn:focus-visible,.btn-primary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+    .input-field{
+      background:rgba(15,23,42,.6);border:1px solid var(--border);color:var(--text);
+      transition:all .25s ease;
+    }
+    .input-field:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);outline:none;}
+    .tag{
+      border-radius:999px;padding:4px 12px;font-size:11px;font-weight:600;white-space:nowrap;
+      display:inline-flex;align-items:center;gap:4px;
+    }
+    .fade-up{animation:fadeUp .4s cubic-bezier(.4,0,.2,1) forwards;opacity:0;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+    @media (prefers-reduced-motion:reduce){.fade-up{animation:none;opacity:1;}}
+    .status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+    .row-hover{transition:background .2s ease;}
+    .row-hover:hover{background:rgba(6,182,212,.04);}
+    .action-btn{
+      width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+      border:none;cursor:pointer;transition:transform .2s ease;font-size:12px;
+    }
+    .action-btn:hover{transform:scale(1.15);}
+    .action-btn:disabled{opacity:.4;cursor:wait;transform:none;}
+    .stagger-1{animation-delay:.05s;}.stagger-2{animation-delay:.1s;}.stagger-3{animation-delay:.15s;}.stagger-4{animation-delay:.2s;}
+    .titulo-cell{font-weight:600;color:var(--accent-light);}
+    .obs-cell{
+      color:var(--muted);font-size:11px;font-weight:400;margin-top:2px;max-width:280px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;
+    }
+    .obs-cell.aberto{white-space:normal;overflow:visible;}
+    .brand-gradient{
+      background:linear-gradient(90deg,var(--accent-light),var(--accent2-light));
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+  `;
+  document.head.appendChild(s);
+})();
+</script>
+</head>
+
+<body>
+
+<!-- ===================== TELA: CONFIGURAÇÃO PENDENTE ===================== -->
+<div id="tela-config" class="oculto min-h-screen flex items-center justify-center p-4">
+  <div class="card p-6 max-w-md w-full">
+    <h1 class="text-2xl font-extrabold mb-2"><span class="brand-gradient">Atlas DD</span></h1>
+    <p class="text-sm mb-3" id="config-msg">Falta conectar ao Supabase.</p>
+    <p class="text-xs" style="color:var(--muted);">Abra este arquivo, procure por <b>SUPABASE_URL</b> e <b>SUPABASE_KEY</b> perto do fim e cole a URL do projeto e a chave pública (Project Settings → API).</p>
+  </div>
+</div>
+
+<!-- ===================== TELA: LOGIN ===================== -->
+<div id="tela-login" class="oculto min-h-screen flex items-center justify-center p-4">
+  <div class="card p-6 max-w-sm w-full fade-up">
+    <h1 class="text-2xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
+    <p class="text-xs mt-1 mb-5" style="color:var(--muted);">Dashboard de Demandas • versão 3</p>
+    <form id="form-login" class="space-y-3">
+      <div>
+        <label for="l-email" class="block text-sm font-medium mb-1" style="color:var(--muted);">E-mail</label>
+        <input type="email" id="l-email" required autocomplete="username" class="w-full px-3 py-2.5 rounded-lg input-field text-sm">
+      </div>
+      <div>
+        <label for="l-senha" class="block text-sm font-medium mb-1" style="color:var(--muted);">Senha</label>
+        <input type="password" id="l-senha" required autocomplete="current-password" class="w-full px-3 py-2.5 rounded-lg input-field text-sm">
+      </div>
+      <p id="login-erro" class="text-xs oculto" style="color:var(--danger-light);"></p>
+      <button type="submit" id="btn-login" class="w-full py-2.5 rounded-lg font-bold text-white btn-primary">Entrar</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app" class="oculto">
+<div class="max-w-7xl mx-auto px-4 py-4 md:px-6 md:py-5">
+
+  <!-- CABEÇALHO -->
+  <div class="mb-4 fade-up" style="animation-delay:.05s;">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
+        <p class="text-xs mt-1" style="color:var(--muted);">Dashboard de Demandas • <span id="usuario-email"></span></p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <div id="status-box" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);">
+          <span id="status-dot" class="status-dot" style="background:var(--success);"></span>
+          <span id="status-txt" style="color:var(--success);font-weight:500;">Sincronizado</span>
+        </div>
+        <button type="button" id="btn-atualizar" class="btn-sec" title="Recarregar do Supabase">⟳</button>
+        <button type="button" id="btn-exp-csv" class="btn-sec" title="Baixar planilha (abre no Excel)">⬇ CSV</button>
+        <label class="btn-sec" style="cursor:pointer;" title="Importar planilha (.csv) ou backup antigo (.json)">⬆ Importar
+          <input type="file" id="inp-import" accept=".json,.csv,application/json,text/csv" style="display:none;">
+        </label>
+        <button type="button" id="btn-sair" class="btn-sec" title="Sair">Sair</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INDICADORES -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+    <div class="card card-accent p-4 fade-up stagger-1">
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);">Total</span>
+        <span class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--accent-soft);">📋</span>
+      </div>
+      <p class="text-2xl font-bold" id="m-total">0</p>
+      <p class="text-xs mt-0.5" style="color:var(--muted);">demandas</p>
+    </div>
+    <div class="card card-orange p-4 fade-up stagger-2">
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);">Pendentes</span>
+        <span class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--accent2-soft);">⏳</span>
+      </div>
+      <p class="text-2xl font-bold" id="m-pendentes" style="color:var(--accent2);">0</p>
+      <p class="text-xs mt-0.5" style="color:var(--muted);">aguardando</p>
+    </div>
+    <div class="card card-green p-4 fade-up stagger-3">
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);">Concluídas</span>
+        <span class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--success-soft);">✅</span>
+      </div>
+      <p class="text-2xl font-bold" id="m-concluidas" style="color:var(--success);">0</p>
+      <p class="text-xs mt-0.5" style="color:var(--muted);">finalizadas</p>
+    </div>
+    <div class="card card-red p-4 fade-up stagger-4">
+      <div class="flex justify-between items-start mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted);">Alta Prioridade</span>
+        <span class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--danger-soft);">🔥</span>
+      </div>
+      <p class="text-2xl font-bold" id="m-alta" style="color:var(--danger);">0</p>
+      <p class="text-xs mt-0.5" style="color:var(--muted);">atenção</p>
+    </div>
+  </div>
+
+  <!-- GRÁFICOS (logo abaixo dos indicadores) -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+    <div class="card p-4 md:col-span-2 fade-up" style="animation-delay:.2s;">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold">📊 Demandas por Frente</h3>
+        <span class="text-xs" style="color:var(--muted);">clique numa barra para filtrar</span>
+      </div>
+      <div id="chart-frentes" style="width:100%;height:260px;"></div>
+    </div>
+    <div class="card p-4 fade-up" style="animation-delay:.25s;">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold">📈 Status Geral</h3>
+        <span class="text-xs" style="color:var(--muted);">clique para filtrar</span>
+      </div>
+      <div id="chart-status" style="width:100%;height:260px;"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <!-- FORMULÁRIO -->
+    <div>
+      <div class="card p-4 fade-up" style="animation-delay:.3s;" id="card-form">
+        <h2 class="text-base font-bold mb-4 flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold" style="background:var(--accent-soft);color:var(--accent);">+</span>
+          <span id="form-titulo-txt">Nova Demanda</span>
+        </h2>
+        <form id="form-nova" class="space-y-3">
+          <div>
+            <label for="f-titulo" class="block text-sm font-bold mb-1" style="color:var(--accent-light);">📌 Título *</label>
+            <input type="text" id="f-titulo" required placeholder="Ex: Credenciamento" class="w-full px-3 py-2.5 rounded-lg input-field text-sm">
+          </div>
+          <div>
+            <label for="f-frente" class="block text-sm font-medium mb-1" style="color:var(--muted);">Frente</label>
+            <select id="f-frente" required class="w-full px-3 py-2.5 rounded-lg input-field text-sm">
+              <option value="">Selecione...</option>
+              <option value="Credenciamento">Credenciamento</option>
+              <option value="Formalização de Contrato">Formalização de Contrato</option>
+              <option value="Conversão de PA para Faturado">Conversão de PA → Faturado</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-origem" class="block text-sm font-medium mb-1" style="color:var(--muted);">Origem</label>
+            <input type="text" id="f-origem" required placeholder="Ex: Cliente" class="w-full px-3 py-2.5 rounded-lg input-field text-sm">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="f-entrada" class="block text-sm font-medium mb-1" style="color:var(--muted);">Entrada</label>
+              <input type="date" id="f-entrada" class="w-full px-3 py-2.5 rounded-lg input-field text-sm">
+            </div>
+            <div>
+              <label for="f-saida" class="block text-sm font-medium mb-1" style="color:var(--muted);">Saída</label>
+              <input type="date" id="f-saida" class="w-full px-3 py-2.5 rounded-lg input-field text-sm">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="f-status" class="block text-sm font-medium mb-1" style="color:var(--muted);">Status</label>
+              <select id="f-status" class="w-full px-3 py-2.5 rounded-lg input-field text-sm">
+                <option value="Pendente">⏳ Pendente</option>
+                <option value="Concluída">✅ Concluída</option>
+              </select>
+            </div>
+            <div>
+              <label for="f-prioridade" class="block text-sm font-medium mb-1" style="color:var(--muted);">Prioridade</label>
+              <select id="f-prioridade" class="w-full px-3 py-2.5 rounded-lg input-field text-sm">
+                <option value="Média">🟡 Média</option>
+                <option value="Alta">🔴 Alta</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="f-obs" class="block text-sm font-medium mb-1" style="color:var(--muted);">Observações</label>
+            <textarea id="f-obs" rows="2" placeholder="Detalhes..." class="w-full px-3 py-2.5 rounded-lg input-field text-sm"></textarea>
+          </div>
+          <button type="submit" id="btn-submit" class="w-full py-2.5 rounded-lg font-bold text-white btn-primary">🚀 Cadastrar</button>
+          <button type="button" id="btn-cancelar" class="oculto w-full btn-sec" style="padding:8px 12px;">Cancelar edição</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- LISTA -->
+    <div class="lg:col-span-2 fade-up" style="animation-delay:.35s;">
+      <div class="card p-4 h-full">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <h2 class="text-base font-bold">📋 Lista de Demandas</h2>
+          <div class="flex flex-wrap gap-2">
+            <input type="search" id="flt-busca" placeholder="🔍 Buscar título, origem, obs..." class="px-3 py-2 rounded-lg input-field text-xs" style="min-width:190px;">
+            <select id="flt-frente" class="px-3 py-2 rounded-lg input-field text-xs">
+              <option value="todas">Todas Frentes</option>
+              <option value="Credenciamento">Credenciamento</option>
+              <option value="Formalização de Contrato">Formalização</option>
+              <option value="Conversão de PA para Faturado">Conversão PA</option>
+              <option value="Outros">Outros</option>
+            </select>
+            <select id="flt-status" class="px-3 py-2 rounded-lg input-field text-xs">
+              <option value="todos">Todos Status</option>
+              <option value="Pendente">Pendentes</option>
+              <option value="Concluída">Concluídas</option>
+            </select>
+            <select id="flt-prioridade" class="px-3 py-2 rounded-lg input-field text-xs">
+              <option value="todas">Todas Prioridades</option>
+              <option value="Alta">Alta</option>
+              <option value="Média">Média</option>
+            </select>
+            <button type="button" id="btn-limpar-filtros" class="btn-sec oculto">✕ Limpar filtros</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg">
+          <table class="w-full text-xs">
+            <thead>
+              <tr style="border-bottom:2px solid var(--border);">
+                <th class="text-left py-2 px-2 font-bold" style="color:var(--accent-light);">Título</th>
+                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Frente</th>
+                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Origem</th>
+                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Entrada</th>
+                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Saída</th>
+                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Status</th>
+                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Prioridade</th>
+                <th class="text-left py-2 px-2 font-bold" style="color:var(--muted);">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="lista-corpo"></tbody>
+          </table>
+          <div id="vazio" class="text-center py-12" style="color:var(--muted);display:none;">
+            <p class="text-3xl mb-2">📭</p>
+            <p class="font-medium" id="vazio-titulo">Nenhuma demanda cadastrada</p>
+            <p class="text-xs mt-1" id="vazio-sub">Preencha o formulário ao lado.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+/* =====================================================================
+   CONFIGURAÇÃO DO SUPABASE — cole aqui os dados do seu projeto
+   (Supabase → Project Settings → API)
+   A chave pública (anon / publishable) pode ficar no GitHub: quem
+   protege os dados é o login + as regras de RLS do banco.
+   NUNCA cole a chave "service_role" / "secret" aqui.
+   ===================================================================== */
+const SUPABASE_URL = 'https://khfdqrqlpcaqihjivtkx.supabase.co';   // ex: https://abcdefgh.supabase.co
+const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // anon key ou sb_publishable_...
+</script>
+
+<script>
+(function(){
+  const TABELA = 'demandas';
+  const LS_ANTIGO = 'atlasdd_demandas_v1';
+  const LS_MIGRACAO = 'atlasdd_migracao_ok';
+  const FRENTES = ['Credenciamento','Formalização de Contrato','Conversão de PA para Faturado','Outros'];
+  const $ = id => document.getElementById(id);
+
+  let sb = null;
+  let usuario = null;
+  let iniciado = false;
+  let demandas = [];
+  let editId = null;
+  let chart1 = null, chart2 = null;
+
+  function mostrar(tela){
+    ['tela-config','tela-login','app'].forEach(t => $(t).classList.toggle('oculto', t !== tela));
+    if(tela === 'app') setTimeout(() => { chart1?.resize(); chart2?.resize(); }, 50);
+  }
+
+  const configurado = /^https:\/\//.test(SUPABASE_URL) && !/^COLE_AQUI/.test(SUPABASE_KEY);
+  if(!configurado){ mostrar('tela-config'); return; }
+  if(!window.supabase){
+    mostrar('tela-config');
+    $('config-msg').textContent = 'Não foi possível carregar o Supabase. Verifique sua conexão e recarregue a página.';
+    return;
+  }
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  /* ---------- Utilidades ---------- */
+  function hoje(){
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function esc(s){
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function formatarData(dt){
+    if(!dt || dt === '-') return '-';
+    const [a, m, d] = dt.split('-');
+    return `${d}/${m}/${a}`;
+  }
+  function ordenar(){
+    demandas.sort((a, b) => (b.entrada || '').localeCompare(a.entrada || '') || b.id - a.id);
+  }
+
+  function status(tipo){
+    const m = {
+      ok:         ['Sincronizado',     '--success', '16,185,129'],
+      salvando:   ['Salvando...',      '--warning', '245,158,11'],
+      carregando: ['Carregando...',    '--warning', '245,158,11'],
+      erro:       ['Erro de conexão',  '--danger',  '239,68,68']
+    }[tipo];
+    $('status-txt').textContent = m[0];
+    $('status-txt').style.color = `var(${m[1]})`;
+    $('status-dot').style.background = `var(${m[1]})`;
+    $('status-box').style.background = `rgba(${m[2]},.08)`;
+    $('status-box').style.border = `1px solid rgba(${m[2]},.2)`;
+  }
+
+  /* ---------- Conversão app <-> banco ---------- */
+  const deBanco = r => ({
+    id: r.id, titulo: r.titulo, frente: r.frente, origem: r.origem || '',
+    entrada: r.entrada, saida: r.saida || '-', status: r.status,
+    prioridade: r.prioridade, obs: r.obs || ''
+  });
+  const paraBanco = d => ({
+    titulo: d.titulo, frente: d.frente, origem: d.origem || '',
+    entrada: d.entrada, saida: (!d.saida || d.saida === '-') ? null : d.saida,
+    status: d.status, prioridade: d.prioridade, obs: d.obs || ''
+  });
+
+  async function executar(consulta, msgErro){
+    status('salvando');
+    const { data, error } = await consulta;
+    if(error){
+      status('erro');
+      alert(`${msgErro}\n\n${error.message}`);
+      return null;
+    }
+    status('ok');
+    return data ?? true;
+  }
+
+  /* ---------- Login / sessão ---------- */
+  sb.auth.onAuthStateChange((_evento, sessao) => {
+    setTimeout(() => tratarSessao(sessao), 0);
+  });
+
+  async function tratarSessao(sessao){
+    try{ await _tratarSessao(sessao); }
+    catch(err){ console.error(err); alert('Erro ao abrir o painel: ' + (err?.message || err)); }
+  }
+  async function _tratarSessao(sessao){
+    const novo = sessao?.user || null;
+    if(iniciado && (novo?.id ?? null) === (usuario?.id ?? null)) return;
+    iniciado = true;
+    usuario = novo;
+    if(!usuario){
+      demandas = [];
+      limparForm();
+      mostrar('tela-login');
+      return;
+    }
+    $('usuario-email').textContent = usuario.email || '';
+    mostrar('app');
+    const ok = await carregarDemandas();
+    if(ok) await oferecerMigracao();
+  }
+
+  function erroLogin(msg){
+    const erro = $('login-erro');
+    erro.textContent = msg;
+    erro.classList.toggle('oculto', !msg);
+  }
+
+  function traduzirErro(err){
+    const m = String(err?.message || err || '').trim();
+    if(/invalid login/i.test(m)) return 'E-mail ou senha incorretos.';
+    if(/email not confirmed/i.test(m)) return 'E-mail ainda não confirmado. No Supabase, confirme o usuário (Authentication → Users).';
+    if(/failed to fetch|load failed|networkerror|network request/i.test(m) || !m)
+      return 'Não foi possível conectar ao Supabase. Verifique a internet, a URL do projeto e se o projeto não está pausado.';
+    return m;
+  }
+
+  $('form-login').addEventListener('submit', async e => {
+    e.preventDefault();
+    erroLogin('');
+    const btn = $('btn-login');
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    const limite = setTimeout(() => {
+      erroLogin('O Supabase está demorando para responder. Verifique a internet e tente de novo.');
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }, 15000);
+    try{
+      const { data, error } = await sb.auth.signInWithPassword({
+        email: $('l-email').value.trim(),
+        password: $('l-senha').value
+      });
+      clearTimeout(limite);
+      if(error){ erroLogin(traduzirErro(error)); return; }
+      if(!data?.session){ erroLogin('Login não retornou sessão. Confirme o usuário no Supabase (Auto Confirm).'); return; }
+      $('l-senha').value = '';
+      erroLogin('');
+      await tratarSessao(data.session);
+    }catch(err){
+      clearTimeout(limite);
+      erroLogin(traduzirErro(err));
+    }finally{
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+  });
+
+  $('btn-sair').addEventListener('click', async () => {
+    if(confirm('Sair do Atlas DD?')) await sb.auth.signOut();
+  });
+
+  /* ---------- Carregar ---------- */
+  async function carregarDemandas(){
+    status('carregando');
+    const { data, error } = await sb.from(TABELA).select('*')
+      .order('entrada', { ascending:false }).order('id', { ascending:false });
+    if(error){
+      status('erro');
+      alert('Não foi possível carregar as demandas.\n\n' + error.message);
+      return false;
+    }
+    demandas = data.map(deBanco);
+    status('ok');
+    atualizarTudo();
+    return true;
+  }
+
+  $('btn-atualizar').addEventListener('click', carregarDemandas);
+  // Ao voltar para a aba/app, busca as alterações feitas em outro aparelho
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && usuario) carregarDemandas();
+  });
+
+  /* ---------- Formulário (criar / editar) ---------- */
+  const form = $('form-nova');
+  $('f-entrada').value = hoje();
+  form.addEventListener('submit', salvarForm);
+  $('btn-cancelar').addEventListener('click', limparForm);
+
+  function lerForm(){
+    const st = $('f-status').value;
+    let saida = $('f-saida').value;
+    if(st === 'Concluída' && !saida) saida = hoje();
+    return {
+      titulo: $('f-titulo').value.trim(),
+      frente: $('f-frente').value,
+      origem: $('f-origem').value.trim(),
+      entrada: $('f-entrada').value || hoje(),
+      saida: saida || '-',
+      status: st,
+      prioridade: $('f-prioridade').value,
+      obs: $('f-obs').value.trim()
+    };
+  }
+
+  async function salvarForm(e){
+    e.preventDefault();
+    const dados = lerForm();
+    const btn = $('btn-submit');
+    btn.disabled = true;
+
+    if(editId !== null){
+      const row = await executar(
+        sb.from(TABELA).update(paraBanco(dados)).eq('id', editId).select().single(),
+        'Não foi possível salvar as alterações.'
+      );
+      if(row){
+        const i = demandas.findIndex(x => x.id === editId);
+        if(i >= 0) demandas[i] = deBanco(row);
+        ordenar(); limparForm(); atualizarTudo();
+      }
+    } else {
+      const row = await executar(
+        sb.from(TABELA).insert(paraBanco(dados)).select().single(),
+        'Não foi possível cadastrar a demanda.'
+      );
+      if(row){
+        demandas.push(deBanco(row));
+        ordenar(); limparForm(); atualizarTudo();
+      }
+    }
+    btn.disabled = false;
+  }
+
+  function limparForm(){
+    form.reset();
+    $('f-entrada').value = hoje();
+    editId = null;
+    $('form-titulo-txt').textContent = 'Nova Demanda';
+    $('btn-submit').textContent = '🚀 Cadastrar';
+    $('btn-cancelar').classList.add('oculto');
+    renderizarLista();
+  }
+
+  function editar(id){
+    const d = demandas.find(x => x.id === id);
+    if(!d) return;
+    editId = id;
+    $('f-titulo').value = d.titulo;
+    $('f-frente').value = d.frente;
+    $('f-origem').value = d.origem;
+    $('f-entrada').value = d.entrada;
+    $('f-saida').value = d.saida === '-' ? '' : d.saida;
+    $('f-status').value = d.status;
+    $('f-prioridade').value = d.prioridade;
+    $('f-obs').value = d.obs || '';
+    $('form-titulo-txt').textContent = 'Editar Demanda';
+    $('btn-submit').textContent = '💾 Salvar alterações';
+    $('btn-cancelar').classList.remove('oculto');
+    renderizarLista();
+    $('card-form').scrollIntoView({ behavior:'smooth', block:'start' });
+    $('f-titulo').focus({ preventScroll:true });
+  }
+
+  async function alternarStatus(id, btn){
+    const d = demandas.find(x => x.id === id);
+    if(!d) return;
+    const mudanca = d.status === 'Pendente'
+      ? { status:'Concluída', saida: (!d.saida || d.saida === '-') ? hoje() : d.saida }
+      : { status:'Pendente', saida: null };
+    if(btn) btn.disabled = true;
+    const row = await executar(
+      sb.from(TABELA).update(mudanca).eq('id', id).select().single(),
+      'Não foi possível atualizar o status.'
+    );
+    if(row){
+      Object.assign(d, deBanco(row));
+      atualizarTudo();
+    } else if(btn) btn.disabled = false;
+  }
+
+  async function excluir(id){
+    if(!confirm('Excluir esta demanda? Essa ação não pode ser desfeita.')) return;
+    const ok = await executar(sb.from(TABELA).delete().eq('id', id), 'Não foi possível excluir a demanda.');
+    if(ok){
+      demandas = demandas.filter(x => x.id !== id);
+      if(editId === id) limparForm();
+      atualizarTudo();
+    }
+  }
+
+  /* ---------- Lista ---------- */
+  const lista = $('lista-corpo');
+  const vazio = $('vazio');
+
+  ['flt-frente','flt-status','flt-prioridade'].forEach(id => $(id).addEventListener('change', renderizarLista));
+  $('flt-busca').addEventListener('input', renderizarLista);
+  $('btn-limpar-filtros').addEventListener('click', () => {
+    $('flt-frente').value = 'todas'; $('flt-status').value = 'todos';
+    $('flt-prioridade').value = 'todas'; $('flt-busca').value = '';
+    renderizarLista();
+  });
+
+  lista.addEventListener('click', e => {
+    const obs = e.target.closest('.obs-cell');
+    if(obs){ obs.classList.toggle('aberto'); return; }
+    const btn = e.target.closest('button[data-acao]');
+    if(!btn) return;
+    const id = Number(btn.dataset.id);
+    if(btn.dataset.acao === 'editar') editar(id);
+    if(btn.dataset.acao === 'alternar') alternarStatus(id, btn);
+    if(btn.dataset.acao === 'excluir') excluir(id);
+  });
+
+  function atualizarTudo(){
+    atualizarCards();
+    renderizarLista();
+    atualizarGraficos();
+  }
+
+  function atualizarCards(){
+    $('m-total').textContent = demandas.length;
+    $('m-pendentes').textContent = demandas.filter(d => d.status === 'Pendente').length;
+    $('m-concluidas').textContent = demandas.filter(d => d.status === 'Concluída').length;
+    $('m-alta').textContent = demandas.filter(d => d.prioridade === 'Alta').length;
+  }
+
+  function renderizarLista(){
+    const frente = $('flt-frente').value;
+    const st = $('flt-status').value;
+    const prioridade = $('flt-prioridade').value;
+    const busca = $('flt-busca').value.trim().toLowerCase();
+    const filtrando = frente !== 'todas' || st !== 'todos' || prioridade !== 'todas' || busca;
+    $('btn-limpar-filtros').classList.toggle('oculto', !filtrando);
+
+    const visiveis = demandas.filter(d =>
+      (frente === 'todas' || d.frente === frente) &&
+      (st === 'todos' || d.status === st) &&
+      (prioridade === 'todas' || d.prioridade === prioridade) &&
+      (!busca || `${d.titulo} ${d.origem} ${d.obs || ''}`.toLowerCase().includes(busca))
+    );
+
+    lista.innerHTML = '';
+    vazio.style.display = visiveis.length === 0 ? 'block' : 'none';
+    if(demandas.length === 0){
+      $('vazio-titulo').textContent = 'Nenhuma demanda cadastrada';
+      $('vazio-sub').textContent = 'Preencha o formulário ao lado.';
+    } else {
+      $('vazio-titulo').textContent = 'Nenhuma demanda encontrada';
+      $('vazio-sub').textContent = 'Ajuste a busca ou os filtros.';
+    }
+
+    visiveis.forEach((d, idx) => {
+      const tr = document.createElement('tr');
+      tr.className = 'row-hover fade-up';
+      tr.style.animationDelay = `${Math.min(idx, 20) * 0.03}s`;
+      tr.style.borderBottom = '1px solid var(--border)';
+      if(d.id === editId) tr.style.background = 'rgba(6,182,212,.08)';
+
+      const isPendente = d.status === 'Pendente';
+      const isAlta = d.prioridade === 'Alta';
+      const corSt = isPendente ? 'var(--accent2)' : 'var(--success)';
+      const bgSt = isPendente ? 'var(--accent2-soft)' : 'var(--success-soft)';
+      const corPr = isAlta ? 'var(--danger)' : 'var(--warning)';
+      const bgPr = isAlta ? 'var(--danger-soft)' : 'var(--warning-soft)';
+
+      tr.innerHTML = `
+        <td class="py-2.5 px-2">
+          <div class="titulo-cell">${esc(d.titulo)}</div>
+          ${d.obs ? `<div class="obs-cell" title="${esc(d.obs)}">📝 ${esc(d.obs)}</div>` : ''}
+        </td>
+        <td class="py-2.5 px-2">${esc(d.frente)}</td>
+        <td class="py-2.5 px-2">${esc(d.origem)}</td>
+        <td class="py-2.5 px-2" style="color:var(--muted);font-size:11px;white-space:nowrap;">${formatarData(d.entrada)}</td>
+        <td class="py-2.5 px-2" style="color:var(--muted);font-size:11px;white-space:nowrap;">${formatarData(d.saida)}</td>
+        <td class="py-2.5 px-2">
+          <span class="tag" style="background:${bgSt};color:${corSt};border:1px solid rgba(148,163,184,.15);">
+            ${isPendente ? '⏳' : '✅'} ${d.status}
+          </span>
+        </td>
+        <td class="py-2.5 px-2">
+          <span class="tag" style="background:${bgPr};color:${corPr};border:1px solid rgba(148,163,184,.15);">
+            ${isAlta ? '🔴' : '🟡'} ${d.prioridade}
+          </span>
+        </td>
+        <td class="py-2.5 px-2">
+          <div class="flex gap-1.5">
+            <button data-acao="editar" data-id="${d.id}" class="action-btn" title="Editar"
+              style="background:rgba(148,163,184,.12);color:var(--text);">✎</button>
+            <button data-acao="alternar" data-id="${d.id}" class="action-btn" title="${isPendente ? 'Concluir' : 'Reabrir'}"
+              style="background:var(--accent-soft);color:var(--accent);">${isPendente ? '✓' : '↩'}</button>
+            <button data-acao="excluir" data-id="${d.id}" class="action-btn" title="Excluir"
+              style="background:var(--danger-soft);color:var(--danger);">✕</button>
+          </div>
+        </td>
+      `;
+      lista.appendChild(tr);
+    });
+  }
+
+  /* ---------- Gráficos ---------- */
+  function atualizarGraficos(){
+    if($('app').classList.contains('oculto')) return;
+    const rotulos = ['Credenciamento','Formalização','Conversão PA','Outros'];
+    const pend = FRENTES.map(f => demandas.filter(d => d.frente === f && d.status === 'Pendente').length);
+    const conc = FRENTES.map(f => demandas.filter(d => d.frente === f && d.status === 'Concluída').length);
+
+    if(!chart1){
+      chart1 = echarts.init($('chart-frentes'));
+      chart1.on('click', p => {
+        $('flt-frente').value = FRENTES[p.dataIndex];
+        $('flt-status').value = p.seriesName;
+        renderizarLista();
+      });
+    }
+    chart1.setOption({
+      backgroundColor: 'transparent',
+      tooltip:{trigger:'axis',axisPointer:{type:'shadow'},backgroundColor:'#1a2d4a',borderColor:'#06b6d4',textStyle:{color:'#fff'}},
+      legend:{data:['Pendente','Concluída'],textStyle:{color:'#94a3b8',fontSize:11},top:0},
+      grid:{left:'2%',right:'3%',bottom:'2%',top:'14%',containLabel:true},
+      xAxis:{type:'category',data:rotulos,axisLabel:{color:'#94a3b8',fontSize:11,interval:0},axisLine:{lineStyle:{color:'rgba(148,163,184,.12)'}}},
+      yAxis:{type:'value',minInterval:1,axisLabel:{color:'#94a3b8',fontSize:10},splitLine:{lineStyle:{color:'rgba(148,163,184,.06)'}}},
+      series:[
+        {name:'Pendente',type:'bar',stack:'total',data:pend,itemStyle:{color:'#f97316'},barWidth:'45%',cursor:'pointer'},
+        {name:'Concluída',type:'bar',stack:'total',data:conc,itemStyle:{color:'#10b981',borderRadius:[4,4,0,0]},barWidth:'45%',cursor:'pointer',
+         label:{show:true,position:'top',color:'#94a3b8',fontSize:11,formatter:p => (pend[p.dataIndex]+conc[p.dataIndex]) || ''}}
+      ]
+    });
+
+    const totalPend = demandas.filter(d => d.status === 'Pendente').length;
+    const totalConc = demandas.filter(d => d.status === 'Concluída').length;
+    const total = totalPend + totalConc;
+    const pct = total ? Math.round(totalConc / total * 100) : 0;
+
+    if(!chart2){
+      chart2 = echarts.init($('chart-status'));
+      chart2.on('click', p => {
+        $('flt-status').value = p.name;
+        renderizarLista();
+      });
+    }
+    chart2.setOption({
+      backgroundColor: 'transparent',
+      tooltip:{trigger:'item',formatter:'{b}: {c} ({d}%)',backgroundColor:'#1a2d4a',borderColor:'#06b6d4',textStyle:{color:'#fff'}},
+      legend:{bottom:0,textStyle:{color:'#94a3b8',fontSize:11}},
+      title:{
+        text: `${pct}%`, subtext:'concluídas', left:'center', top:'36%',
+        textStyle:{color:'#f8fafc',fontSize:22,fontWeight:700},
+        subtextStyle:{color:'#94a3b8',fontSize:11}
+      },
+      series:[{
+        type:'pie',radius:['48%','70%'],center:['50%','45%'],cursor:'pointer',
+        label:{show:false},
+        data:[
+          {value:totalPend,name:'Pendente',itemStyle:{color:'#f97316'}},
+          {value:totalConc,name:'Concluída',itemStyle:{color:'#10b981'}}
+        ]
+      }]
+    });
+  }
+  window.addEventListener('resize', () => { chart1?.resize(); chart2?.resize(); });
+
+  /* ---------- Exportar CSV ---------- */
+  function csvCampo(v){
+    const s = String(v ?? '');
+    return /[";\n\r]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+  }
+  $('btn-exp-csv').addEventListener('click', () => {
+    if(!demandas.length) return alert('Não há demandas para exportar.');
+    const cab = ['Título','Frente','Origem','Entrada','Saída','Status','Prioridade','Observações'];
+    const linhas = demandas.map(d =>
+      [d.titulo, d.frente, d.origem, formatarData(d.entrada), formatarData(d.saida), d.status, d.prioridade, d.obs || '']
+        .map(csvCampo).join(';')
+    );
+    const url = URL.createObjectURL(new Blob(['\uFEFF' + [cab.join(';'), ...linhas].join('\r\n')], { type:'text/csv;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = `atlas-dd_${hoje()}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+  /* ---------- Importar (CSV ou backup .json antigo) ---------- */
+  $('inp-import').addEventListener('change', e => {
+    const arq = e.target.files[0];
+    e.target.value = '';
+    if(!arq) return;
+    const leitor = new FileReader();
+    leitor.onload = async () => {
+      try{
+        const txt = String(leitor.result).replace(/^\uFEFF/, '');
+        const ehJSON = arq.name.toLowerCase().endsWith('.json') || /^\s*[\[{]/.test(txt);
+        await inserirLote(ehJSON ? deJSON(txt) : deCSV(txt));
+      }catch(err){
+        alert('Não foi possível importar: ' + err.message);
+      }
+    };
+    leitor.readAsText(arq, 'utf-8');
+  });
+
+  function deJSON(txt){
+    const p = JSON.parse(txt);
+    const arr = Array.isArray(p) ? p : p && p.demandas;
+    if(!Array.isArray(arr)) throw new Error('o arquivo não contém uma lista de demandas.');
+    return arr;
+  }
+
+  function deCSV(txt){
+    const primeira = txt.split(/\r?\n/)[0];
+    const sep = (primeira.match(/;/g) || []).length >= (primeira.match(/,/g) || []).length ? ';' : ',';
+    const linhas = [];
+    let campo = '', linha = [], aspas = false;
+    for(let i = 0; i < txt.length; i++){
+      const c = txt[i];
+      if(aspas){
+        if(c === '"'){ if(txt[i+1] === '"'){ campo += '"'; i++; } else aspas = false; }
+        else campo += c;
+      }
+      else if(c === '"') aspas = true;
+      else if(c === sep){ linha.push(campo); campo = ''; }
+      else if(c === '\n' || c === '\r'){
+        if(c === '\r' && txt[i+1] === '\n') i++;
+        linha.push(campo); linhas.push(linha); linha = []; campo = '';
+      }
+      else campo += c;
+    }
+    if(campo || linha.length){ linha.push(campo); linhas.push(linha); }
+    if(linhas.length < 2) throw new Error('o CSV não tem linhas de dados.');
+
+    const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    const cab = linhas[0].map(norm);
+    const idx = {
+      titulo: cab.indexOf('titulo'), frente: cab.indexOf('frente'), origem: cab.indexOf('origem'),
+      entrada: cab.indexOf('entrada'), saida: cab.indexOf('saida'), status: cab.indexOf('status'),
+      prioridade: cab.indexOf('prioridade'), obs: cab.indexOf('observacoes')
+    };
+    if(idx.titulo < 0) throw new Error('coluna "Título" não encontrada no CSV.');
+    return linhas.slice(1)
+      .filter(l => l.some(v => v.trim()))
+      .map(l => { const o = {}; for(const k in idx) o[k] = idx[k] >= 0 ? l[idx[k]] : ''; return o; });
+  }
+
+  function paraISO(v){
+    const s = String(v ?? '').trim();
+    if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    return m ? `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}` : '';
+  }
+
+  function normalizarFrente(v){
+    const n = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    return FRENTES.find(f => n(f) === n(v)) || 'Outros';
+  }
+
+  function normalizar(o){
+    const titulo = String(o.titulo ?? '').trim();
+    if(!titulo) return null;
+    return {
+      titulo,
+      frente: normalizarFrente(o.frente),
+      origem: String(o.origem ?? '').trim(),
+      entrada: paraISO(o.entrada) || hoje(),
+      saida: paraISO(o.saida) || '-',
+      status: /conclu/i.test(o.status) ? 'Concluída' : 'Pendente',
+      prioridade: /alta/i.test(o.prioridade) ? 'Alta' : 'Média',
+      obs: String(o.obs ?? '').trim()
+    };
+  }
+
+  async function inserirLote(brutas){
+    const norm = brutas.map(normalizar).filter(Boolean);
+    if(!norm.length){ alert('Nenhuma demanda válida encontrada.'); return false; }
+    const chave = d => `${d.titulo}|${d.origem}|${d.entrada}`.toLowerCase();
+    const chaves = new Set(demandas.map(chave));
+    const novas = []; let ign = 0;
+    norm.forEach(d => {
+      const k = chave(d);
+      if(chaves.has(k)){ ign++; return; }
+      chaves.add(k); novas.push(d);
+    });
+    if(novas.length){
+      const rows = await executar(
+        sb.from(TABELA).insert(novas.map(paraBanco)).select(),
+        'Não foi possível enviar as demandas.'
+      );
+      if(!rows) return false;
+      demandas.push(...rows.map(deBanco));
+      ordenar();
+      atualizarTudo();
+    }
+    alert(`${novas.length} demanda(s) enviada(s) ao Supabase` + (ign ? `, ${ign} ignorada(s) por já existirem.` : '.'));
+    return true;
+  }
+
+  /* ---------- Migração das demandas salvas no navegador (versão antiga) ---------- */
+  async function oferecerMigracao(){
+    let antigas = [];
+    try{
+      if(localStorage.getItem(LS_MIGRACAO)) return;
+      antigas = JSON.parse(localStorage.getItem(LS_ANTIGO) || '[]');
+    }catch(e){ return; }
+    if(!Array.isArray(antigas) || !antigas.length) return;
+
+    const enviar = confirm(`Encontrei ${antigas.length} demanda(s) salvas neste navegador pela versão antiga.\n\nEnviar para o Supabase agora?`);
+    if(!enviar){
+      if(confirm('Não perguntar mais neste navegador?')) try{ localStorage.setItem(LS_MIGRACAO, 'recusada'); }catch(e){}
+      return;
+    }
+    const ok = await inserirLote(antigas);
+    if(ok) try{ localStorage.setItem(LS_MIGRACAO, new Date().toISOString()); }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
