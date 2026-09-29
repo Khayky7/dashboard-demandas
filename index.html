@@ -10,6 +10,27 @@
 <meta name="theme-color" content="#070f1f">
 <style>
 .oculto{display:none !important;}
+kbd{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:6px;background:#0b1629;border:1px solid rgba(148,163,184,.25);border-bottom-width:2px;font:600 11px/1 Inter,system-ui,sans-serif;color:#f8fafc;}
+#atalhos-ajuda{position:fixed;inset:0;z-index:9998;background:rgba(3,7,18,.65);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px;}
+#atalhos-ajuda .caixa{background:#112038;border:1px solid rgba(148,163,184,.18);border-radius:16px;padding:20px;width:100%;max-width:360px;box-shadow:0 20px 50px rgba(0,0,0,.5);}
+#atalhos-ajuda .linha{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(148,163,184,.1);font-size:13px;color:#cbd5e1;}
+#atalhos-ajuda .linha:last-child{border-bottom:0;}
+#atalhos-ajuda .teclas{display:flex;gap:4px;flex:0 0 auto;}
+@media (hover:none){#btn-atalhos{display:none;}}
+#toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none;max-width:calc(100vw - 32px);}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font:500 13px/1.35 Inter,system-ui,sans-serif;color:#f8fafc;background:#1a2d4a;border:1px solid rgba(148,163,184,.18);box-shadow:0 10px 30px rgba(0,0,0,.45);animation:toastIn .25s ease forwards;max-width:360px;}
+.toast.sai{animation:toastOut .25s ease forwards;}
+.toast .t-ico{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex:0 0 auto;}
+.toast.ok .t-ico{background:rgba(34,211,238,.15);color:#22d3ee;}
+.toast.info .t-ico{background:rgba(167,139,250,.15);color:#a78bfa;}
+.toast.erro{border-color:rgba(239,68,68,.35);}
+.toast.erro .t-ico{background:rgba(239,68,68,.15);color:#f87171;}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(10px)}}
+.parada-badge{display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:10px;font-weight:600;color:#fbbf24;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);border-radius:999px;padding:1px 7px;white-space:nowrap;}
+tr.linha-parada td:first-child{box-shadow:inset 3px 0 0 #fbbf24;}
+.link-paradas{background:none;border:0;padding:0;color:#fbbf24;font:inherit;font-weight:600;cursor:pointer;text-align:left;}
+.link-paradas:hover{text-decoration:underline;}
 .logo-atlas{flex:0 0 auto;display:block;}
 .tabela-scroll{overflow-y:auto;overflow-x:hidden;max-height:65vh;}
 .tabela-demandas{table-layout:fixed;width:100%;border-collapse:collapse;}
@@ -148,7 +169,7 @@
       <svg class="logo-atlas" viewBox="3 0 100 100" width="52" height="52" aria-hidden="true" focusable="false"><defs><linearGradient id="lg1-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#0891b2"/></linearGradient><linearGradient id="lg2-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#06b6d4"/></linearGradient><linearGradient id="lg3-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#6366f1"/></linearGradient><linearGradient id="lg4-2" x1="0" y1="20" x2="0" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs><rect x="8" y="40" width="16" height="40" rx="3" fill="url(#lg1-2)"/><rect x="28" y="28" width="16" height="52" rx="3" fill="url(#lg2-2)"/><rect x="48" y="36" width="16" height="36" rx="3" fill="url(#lg3-2)"/><path d="M64 20 A30 30 0 0 1 64 80" fill="none" stroke="url(#lg4-2)" stroke-width="8" stroke-linecap="round"/></svg>
       <div>
         <h1 class="text-2xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
-        <p class="text-xs mt-0.5" style="color:var(--muted);">Dashboard de Demandas • versão 10</p>
+        <p class="text-xs mt-0.5" style="color:var(--muted);">Dashboard de Demandas • versão 13</p>
       </div>
     </div>
     <form id="form-login" class="space-y-3">
@@ -185,11 +206,9 @@
           <span id="status-dot" class="status-dot" style="background:var(--success);"></span>
           <span id="status-txt" style="color:var(--success);font-weight:500;">Sincronizado</span>
         </div>
+        <button type="button" id="btn-atalhos" class="btn-sec" title="Atalhos de teclado (?)">⌨</button>
         <button type="button" id="btn-atualizar" class="btn-sec" title="Recarregar do Supabase">⟳</button>
         <button type="button" id="btn-exp-csv" class="btn-sec" title="Baixar planilha (abre no Excel)">⬇ CSV</button>
-        <label class="btn-sec" style="cursor:pointer;" title="Importar planilha (.csv) ou backup antigo (.json)">⬆ Importar
-          <input type="file" id="inp-import" accept=".json,.csv,application/json,text/csv" style="display:none;">
-        </label>
         <button type="button" id="btn-sair" class="btn-sec" title="Sair">Sair</button>
       </div>
     </div>
@@ -211,7 +230,7 @@
         <span class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--accent2-soft);">⏳</span>
       </div>
       <p class="text-2xl font-bold" id="m-pendentes" style="color:var(--accent2);">0</p>
-      <p class="text-xs mt-0.5" style="color:var(--muted);">aguardando</p>
+      <p class="text-xs mt-0.5" style="color:var(--muted);" id="m-pendentes-sub">aguardando</p>
     </div>
     <div class="card card-green p-4 fade-up stagger-3">
       <div class="flex justify-between items-start mb-2">
@@ -308,6 +327,7 @@
               <option value="todos">Todos Status</option>
               <option value="Pendente">Pendentes</option>
               <option value="Concluída">Concluídas</option>
+              <option value="parada">⏱ Paradas</option>
             </select>
             <select id="flt-prioridade" class="px-3 py-2 rounded-lg input-field text-xs">
               <option value="todas">Todas Prioridades</option>
@@ -343,6 +363,10 @@
             <p class="text-3xl mb-2">📭</p>
             <p class="font-medium" id="vazio-titulo">Nenhuma demanda cadastrada</p>
             <p class="text-xs mt-1" id="vazio-sub">Preencha o formulário ao lado.</p>
+          </div>
+          <div id="mais-wrap" class="oculto" style="text-align:center;padding:12px 0 4px;">
+            <p id="mais-info" class="text-xs" style="color:var(--muted);margin-bottom:8px;"></p>
+            <button type="button" id="btn-mais" class="btn-sec">Mostrar mais</button>
           </div>
         </div>
       </div>
@@ -386,6 +410,8 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
   const TABELA = 'demandas';
   const LS_ANTIGO = 'atlasdd_demandas_v1';
   const LS_MIGRACAO = 'atlasdd_migracao_ok';
+  const DIAS_PARADA = 7;     // pendente há mais que isso = "parada"
+  const POR_PAGINA = 50;     // quantas demandas mostrar por vez na lista
   const FRENTES = ['Credenciamento','Formalização de Contrato','Conversão de PA para Faturado','Outros'];
   const $ = id => document.getElementById(id);
 
@@ -394,6 +420,10 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
   let iniciado = false;
   let demandas = [];
   let editId = null;
+  let limite = POR_PAGINA;
+  let ultimoFiltro = '';
+  let sessaoExpirou = false;
+  let saidaManual = false;
   let chart1 = null, chart2 = null;
 
   function mostrar(tela){
@@ -434,6 +464,29 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     const [a, m, d] = dt.split('-');
     return `${d}/${m}/${a.slice(2)}`;
   }
+  function toast(msg, tipo = 'ok'){
+    const box = $('toasts');
+    if(!box) return;
+    const ico = { ok:'✓', info:'i', erro:'!' }[tipo] || '✓';
+    const el = document.createElement('div');
+    el.className = `toast ${tipo}`;
+    el.setAttribute('role', tipo === 'erro' ? 'alert' : 'status');
+    el.innerHTML = `<span class="t-ico">${ico}</span><span></span>`;
+    el.lastChild.textContent = msg;
+    box.appendChild(el);
+    while(box.children.length > 3) box.firstChild.remove();
+    const tempo = tipo === 'erro' ? 6000 : 2600;
+    setTimeout(() => { el.classList.add('sai'); setTimeout(() => el.remove(), 260); }, tempo);
+  }
+
+  function diasDesde(iso){
+    if(!iso || iso === '-') return 0;
+    const [a, m, d] = iso.split('-').map(Number);
+    const [ha, hm, hd] = hoje().split('-').map(Number);
+    return Math.round((Date.UTC(ha, hm-1, hd) - Date.UTC(a, m-1, d)) / 86400000);
+  }
+  const estaParada = d => d.status === 'Pendente' && diasDesde(d.entrada) > DIAS_PARADA;
+
   function ordenar(){
     demandas.sort((a, b) => (b.entrada || '').localeCompare(a.entrada || '') || b.id - a.id);
   }
@@ -464,16 +517,36 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     status: d.status, prioridade: d.prioridade, obs: d.obs || ''
   });
 
-  async function executar(consulta, msgErro){
+  async function executar(consulta, msgErro, msgOk){
     status('salvando');
-    const { data, error } = await consulta;
+    let res;
+    try{ res = await consulta; }catch(err){ res = { error: err }; }
+    const { data, error } = res;
     if(error){
+      if(await ehErroSessao(error)){ sessaoPerdida(); return null; }
       status('erro');
-      alert(`${msgErro}\n\n${error.message}`);
+      toast(`${msgErro} ${traduzirErro(error)}`, 'erro');
       return null;
     }
     status('ok');
+    if(msgOk) toast(msgOk);
     return data ?? true;
+  }
+
+  async function ehErroSessao(error){
+    const m = String(error?.message || '');
+    if(error?.status === 401 || /jwt|token.*expired|refresh token/i.test(m)) return true;
+    try{ const { data } = await sb.auth.getSession(); return !data?.session; }
+    catch(e){ return false; }
+  }
+
+  function sessaoPerdida(){
+    if(sessaoExpirou) return;
+    sessaoExpirou = true;
+    status('erro');
+    toast('Sua sessão expirou. Entre novamente para continuar.', 'erro');
+    sb.auth.signOut({ scope:'local' }).catch(() => {});
+    setTimeout(() => { if(usuario) tratarSessao(null); }, 600);
   }
 
   /* ---------- Login / sessão ---------- */
@@ -483,19 +556,29 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
 
   async function tratarSessao(sessao){
     try{ await _tratarSessao(sessao); }
-    catch(err){ console.error(err); alert('Erro ao abrir o painel: ' + (err?.message || err)); }
+    catch(err){ console.error(err); toast('Erro ao abrir o painel: ' + (err?.message || err), 'erro'); }
   }
   async function _tratarSessao(sessao){
     const novo = sessao?.user || null;
     if(iniciado && (novo?.id ?? null) === (usuario?.id ?? null)) return;
+    const tinhaUsuario = !!usuario;
     iniciado = true;
     usuario = novo;
     if(!usuario){
+      if(tinhaUsuario && !saidaManual) sessaoExpirou = true;
+      saidaManual = false;
       demandas = [];
-      limparForm();
       mostrar('tela-login');
+      if(sessaoExpirou){
+        erroLogin('Sua sessão expirou. Entre novamente — o que estava no formulário foi mantido.');
+      } else {
+        erroLogin('');
+        limparForm();
+      }
       return;
     }
+    sessaoExpirou = false;
+    erroLogin('');
     $('usuario-email').textContent = usuario.email || '';
     mostrar('app');
     const ok = await carregarDemandas();
@@ -546,20 +629,33 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
   });
 
   $('btn-sair').addEventListener('click', async () => {
-    if(confirm('Sair do Atlas DD?')) await sb.auth.signOut();
+    if(!confirm('Sair do Atlas DD?')) return;
+    saidaManual = true;
+    await sb.auth.signOut();
   });
 
   /* ---------- Carregar ---------- */
   async function carregarDemandas(){
     status('carregando');
-    const { data, error } = await sb.from(TABELA).select('*')
-      .order('entrada', { ascending:false }).order('id', { ascending:false });
-    if(error){
-      status('erro');
-      alert('Não foi possível carregar as demandas.\n\n' + error.message);
-      return false;
+    const PASSO = 1000;   // o Supabase devolve no máximo 1000 linhas por consulta
+    const todas = [];
+    for(let de = 0; ; de += PASSO){
+      let res;
+      try{
+        res = await sb.from(TABELA).select('*')
+          .order('entrada', { ascending:false }).order('id', { ascending:false })
+          .range(de, de + PASSO - 1);
+      }catch(err){ res = { error: err }; }
+      if(res.error){
+        if(await ehErroSessao(res.error)){ sessaoPerdida(); return false; }
+        status('erro');
+        toast('Não foi possível carregar as demandas. ' + traduzirErro(res.error), 'erro');
+        return false;
+      }
+      todas.push(...res.data);
+      if(res.data.length < PASSO) break;
     }
-    demandas = data.map(deBanco);
+    demandas = todas.map(deBanco);
     status('ok');
     atualizarTudo();
     return true;
@@ -602,7 +698,8 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     if(editId !== null){
       const row = await executar(
         sb.from(TABELA).update(paraBanco(dados)).eq('id', editId).select().single(),
-        'Não foi possível salvar as alterações.'
+        'Não foi possível salvar as alterações.',
+        'Alterações salvas'
       );
       if(row){
         const i = demandas.findIndex(x => x.id === editId);
@@ -612,7 +709,8 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     } else {
       const row = await executar(
         sb.from(TABELA).insert(paraBanco(dados)).select().single(),
-        'Não foi possível cadastrar a demanda.'
+        'Não foi possível cadastrar a demanda.',
+        'Demanda cadastrada'
       );
       if(row){
         demandas.push(deBanco(row));
@@ -661,7 +759,8 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     if(btn) btn.disabled = true;
     const row = await executar(
       sb.from(TABELA).update(mudanca).eq('id', id).select().single(),
-      'Não foi possível atualizar o status.'
+      'Não foi possível atualizar o status.',
+      mudanca.status === 'Concluída' ? 'Demanda concluída' : 'Demanda reaberta'
     );
     if(row){
       Object.assign(d, deBanco(row));
@@ -671,7 +770,7 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
 
   async function excluir(id){
     if(!confirm('Excluir esta demanda? Essa ação não pode ser desfeita.')) return;
-    const ok = await executar(sb.from(TABELA).delete().eq('id', id), 'Não foi possível excluir a demanda.');
+    const ok = await executar(sb.from(TABELA).delete().eq('id', id), 'Não foi possível excluir a demanda.', 'Demanda excluída');
     if(ok){
       demandas = demandas.filter(x => x.id !== id);
       if(editId === id) limparForm();
@@ -685,6 +784,67 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
 
   ['flt-frente','flt-status','flt-prioridade'].forEach(id => $(id).addEventListener('change', renderizarLista));
   $('flt-busca').addEventListener('input', renderizarLista);
+  $('btn-mais').addEventListener('click', () => { limite += POR_PAGINA; renderizarLista(); });
+
+  /* ---------- Atalhos de teclado ---------- */
+  const ajuda = $('atalhos-ajuda');
+  const abrirAjuda = () => ajuda.classList.remove('oculto');
+  const fecharAjuda = () => ajuda.classList.add('oculto');
+  $('btn-atalhos').addEventListener('click', abrirAjuda);
+  $('btn-fechar-atalhos').addEventListener('click', fecharAjuda);
+  ajuda.addEventListener('click', e => { if(e.target === ajuda) fecharAjuda(); });
+
+  function filtrosAtivos(){
+    return $('flt-frente').value !== 'todas' || $('flt-status').value !== 'todos' ||
+           $('flt-prioridade').value !== 'todas' || $('flt-busca').value.trim() !== '';
+  }
+
+  document.addEventListener('keydown', e => {
+    if($('app').classList.contains('oculto')) return;   // só com o painel aberto
+    const alvo = e.target;
+    const digitando = alvo && (alvo.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(alvo.tagName));
+    const tecla = e.key;
+
+    // Esc: fecha ajuda > cancela edição > sai do campo > limpa busca e filtros
+    if(tecla === 'Escape'){
+      if(!ajuda.classList.contains('oculto')){ fecharAjuda(); return; }
+      if(editId !== null){ limparForm(); toast('Edição cancelada', 'info'); if(digitando) alvo.blur(); return; }
+      if(digitando){ alvo.blur(); return; }
+      if(filtrosAtivos()){ $('btn-limpar-filtros').click(); return; }
+      return;
+    }
+
+    // Ctrl/Cmd + Enter: salva o formulário (funciona dentro dos campos)
+    if(tecla === 'Enter' && (e.ctrlKey || e.metaKey)){
+      if(form.contains(alvo) || editId !== null){
+        e.preventDefault();
+        form.requestSubmit ? form.requestSubmit($('btn-submit')) : $('btn-submit').click();
+      }
+      return;
+    }
+
+    // As demais teclas não valem enquanto se digita ou com Ctrl/Alt/Cmd
+    if(digitando || e.ctrlKey || e.metaKey || e.altKey) return;
+    if(!ajuda.classList.contains('oculto') && tecla !== '?') return;
+
+    if(tecla === 'n' || tecla === 'N'){
+      e.preventDefault();
+      if(editId !== null) limparForm();
+      $('card-form').scrollIntoView({ behavior:'smooth', block:'start' });
+      $('f-titulo').focus({ preventScroll:true });
+    } else if(tecla === '/'){
+      e.preventDefault();
+      const b = $('flt-busca');
+      b.scrollIntoView({ behavior:'smooth', block:'center' });
+      b.focus({ preventScroll:true }); b.select();
+    } else if(tecla === 'r' || tecla === 'R'){
+      e.preventDefault();
+      carregarDemandas().then(ok => { if(ok) toast('Demandas atualizadas', 'info'); });
+    } else if(tecla === '?'){
+      e.preventDefault();
+      ajuda.classList.contains('oculto') ? abrirAjuda() : fecharAjuda();
+    }
+  });
   $('btn-limpar-filtros').addEventListener('click', () => {
     $('flt-frente').value = 'todas'; $('flt-status').value = 'todos';
     $('flt-prioridade').value = 'todas'; $('flt-busca').value = '';
@@ -713,6 +873,18 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     $('m-pendentes').textContent = demandas.filter(d => d.status === 'Pendente').length;
     $('m-concluidas').textContent = demandas.filter(d => d.status === 'Concluída').length;
     $('m-alta').textContent = demandas.filter(d => d.prioridade === 'Alta').length;
+    const paradas = demandas.filter(estaParada).length;
+    const sub = $('m-pendentes-sub');
+    if(paradas){
+      sub.innerHTML = `<button type="button" class="link-paradas" title="Ver demandas paradas">⏱ ${paradas} parada${paradas > 1 ? 's' : ''} há +${DIAS_PARADA} dias</button>`;
+      sub.firstChild.addEventListener('click', () => {
+        $('flt-status').value = 'parada';
+        renderizarLista();
+        $('flt-status').scrollIntoView({ behavior:'smooth', block:'center' });
+      });
+    } else {
+      sub.textContent = 'aguardando';
+    }
   }
 
   function renderizarLista(){
@@ -725,10 +897,20 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
 
     const visiveis = demandas.filter(d =>
       (frente === 'todas' || d.frente === frente) &&
-      (st === 'todos' || d.status === st) &&
+      (st === 'todos' || (st === 'parada' ? estaParada(d) : d.status === st)) &&
       (prioridade === 'todas' || d.prioridade === prioridade) &&
       (!busca || `${d.titulo} ${d.origem} ${d.obs || ''}`.toLowerCase().includes(busca))
     );
+
+    const assinatura = [frente, st, prioridade, busca].join('|');
+    if(assinatura !== ultimoFiltro){ ultimoFiltro = assinatura; limite = POR_PAGINA; }
+    const pagina = visiveis.slice(0, limite);
+    const restantes = visiveis.length - pagina.length;
+    $('mais-wrap').classList.toggle('oculto', restantes <= 0);
+    if(restantes > 0){
+      $('mais-info').textContent = `Mostrando ${pagina.length} de ${visiveis.length}`;
+      $('btn-mais').textContent = `Mostrar mais ${Math.min(restantes, POR_PAGINA)}`;
+    }
 
     lista.innerHTML = '';
     vazio.style.display = visiveis.length === 0 ? 'block' : 'none';
@@ -740,12 +922,14 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
       $('vazio-sub').textContent = 'Ajuste a busca ou os filtros.';
     }
 
-    visiveis.forEach((d, idx) => {
+    pagina.forEach((d, idx) => {
       const tr = document.createElement('tr');
       tr.className = 'row-hover fade-up';
       tr.style.animationDelay = `${Math.min(idx, 20) * 0.03}s`;
       tr.style.borderBottom = '1px solid var(--border)';
       if(d.id === editId) tr.style.background = 'rgba(6,182,212,.08)';
+      const parada = estaParada(d);
+      if(parada) tr.classList.add('linha-parada');
 
       const isPendente = d.status === 'Pendente';
       const isAlta = d.prioridade === 'Alta';
@@ -757,6 +941,7 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
       tr.innerHTML = `
         <td data-label="Título">
           <div class="titulo-cell" title="${esc(d.titulo)}">${esc(d.titulo)}</div>
+          ${parada ? `<div class="parada-badge" title="Pendente desde ${formatarData(d.entrada)}">⏱ parada há ${diasDesde(d.entrada)} dias</div>` : ''}
           ${d.obs ? `<div class="obs-cell" title="${esc(d.obs)}">📝 ${esc(d.obs)}</div>` : ''}
         </td>
         <td data-label="Frente" class="cel-corte" title="${esc(d.frente)}">${esc(FRENTE_CURTA[d.frente] || d.frente)}</td>
@@ -869,7 +1054,7 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     return /[";\n\r]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
   }
   $('btn-exp-csv').addEventListener('click', () => {
-    if(!demandas.length) return alert('Não há demandas para exportar.');
+    if(!demandas.length) return toast('Não há demandas para exportar.', 'info');
     const cab = ['Título','Frente','Origem','Entrada','Saída','Status','Prioridade','Observações'];
     const linhas = demandas.map(d =>
       [d.titulo, d.frente, d.origem, formatarData(d.entrada), formatarData(d.saida), d.status, d.prioridade, d.obs || '']
@@ -882,66 +1067,7 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 
-  /* ---------- Importar (CSV ou backup .json antigo) ---------- */
-  $('inp-import').addEventListener('change', e => {
-    const arq = e.target.files[0];
-    e.target.value = '';
-    if(!arq) return;
-    const leitor = new FileReader();
-    leitor.onload = async () => {
-      try{
-        const txt = String(leitor.result).replace(/^\uFEFF/, '');
-        const ehJSON = arq.name.toLowerCase().endsWith('.json') || /^\s*[\[{]/.test(txt);
-        await inserirLote(ehJSON ? deJSON(txt) : deCSV(txt));
-      }catch(err){
-        alert('Não foi possível importar: ' + err.message);
-      }
-    };
-    leitor.readAsText(arq, 'utf-8');
-  });
-
-  function deJSON(txt){
-    const p = JSON.parse(txt);
-    const arr = Array.isArray(p) ? p : p && p.demandas;
-    if(!Array.isArray(arr)) throw new Error('o arquivo não contém uma lista de demandas.');
-    return arr;
-  }
-
-  function deCSV(txt){
-    const primeira = txt.split(/\r?\n/)[0];
-    const sep = (primeira.match(/;/g) || []).length >= (primeira.match(/,/g) || []).length ? ';' : ',';
-    const linhas = [];
-    let campo = '', linha = [], aspas = false;
-    for(let i = 0; i < txt.length; i++){
-      const c = txt[i];
-      if(aspas){
-        if(c === '"'){ if(txt[i+1] === '"'){ campo += '"'; i++; } else aspas = false; }
-        else campo += c;
-      }
-      else if(c === '"') aspas = true;
-      else if(c === sep){ linha.push(campo); campo = ''; }
-      else if(c === '\n' || c === '\r'){
-        if(c === '\r' && txt[i+1] === '\n') i++;
-        linha.push(campo); linhas.push(linha); linha = []; campo = '';
-      }
-      else campo += c;
-    }
-    if(campo || linha.length){ linha.push(campo); linhas.push(linha); }
-    if(linhas.length < 2) throw new Error('o CSV não tem linhas de dados.');
-
-    const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-    const cab = linhas[0].map(norm);
-    const idx = {
-      titulo: cab.indexOf('titulo'), frente: cab.indexOf('frente'), origem: cab.indexOf('origem'),
-      entrada: cab.indexOf('entrada'), saida: cab.indexOf('saida'), status: cab.indexOf('status'),
-      prioridade: cab.indexOf('prioridade'), obs: cab.indexOf('observacoes')
-    };
-    if(idx.titulo < 0) throw new Error('coluna "Título" não encontrada no CSV.');
-    return linhas.slice(1)
-      .filter(l => l.some(v => v.trim()))
-      .map(l => { const o = {}; for(const k in idx) o[k] = idx[k] >= 0 ? l[idx[k]] : ''; return o; });
-  }
-
+  /* ---------- Normalização (usada na migração da versão antiga) ---------- */
   function paraISO(v){
     const s = String(v ?? '').trim();
     if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
@@ -971,7 +1097,7 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
 
   async function inserirLote(brutas){
     const norm = brutas.map(normalizar).filter(Boolean);
-    if(!norm.length){ alert('Nenhuma demanda válida encontrada.'); return false; }
+    if(!norm.length){ toast('Nenhuma demanda válida encontrada.', 'info'); return false; }
     const chave = d => `${d.titulo}|${d.origem}|${d.entrada}`.toLowerCase();
     const chaves = new Set(demandas.map(chave));
     const novas = []; let ign = 0;
@@ -990,7 +1116,7 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
       ordenar();
       atualizarTudo();
     }
-    alert(`${novas.length} demanda(s) enviada(s) ao Supabase` + (ign ? `, ${ign} ignorada(s) por já existirem.` : '.'));
+    toast(`${novas.length} demanda(s) enviada(s) ao Supabase` + (ign ? `, ${ign} ignorada(s) por já existirem.` : '.'));
     return true;
   }
 
@@ -1013,5 +1139,20 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
   }
 })();
 </script>
+<div id="atalhos-ajuda" class="oculto" role="dialog" aria-modal="true" aria-labelledby="atalhos-titulo">
+  <div class="caixa">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <h2 id="atalhos-titulo" style="font-size:15px;font-weight:700;">⌨ Atalhos de teclado</h2>
+      <button type="button" id="btn-fechar-atalhos" class="btn-sec" aria-label="Fechar">✕</button>
+    </div>
+    <div class="linha"><span>Nova demanda</span><span class="teclas"><kbd>N</kbd></span></div>
+    <div class="linha"><span>Buscar na lista</span><span class="teclas"><kbd>/</kbd></span></div>
+    <div class="linha"><span>Salvar o formulário</span><span class="teclas"><kbd>Ctrl</kbd><kbd>Enter</kbd></span></div>
+    <div class="linha"><span>Cancelar edição / limpar busca e filtros / fechar</span><span class="teclas"><kbd>Esc</kbd></span></div>
+    <div class="linha"><span>Recarregar demandas</span><span class="teclas"><kbd>R</kbd></span></div>
+    <div class="linha"><span>Mostrar esta ajuda</span><span class="teclas"><kbd>?</kbd></span></div>
+  </div>
+</div>
+<div id="toasts" aria-live="polite" aria-atomic="false"></div>
 </body>
 </html>
