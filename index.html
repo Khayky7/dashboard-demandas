@@ -169,7 +169,7 @@ tr.linha-parada td:first-child{box-shadow:inset 3px 0 0 #fbbf24;}
       <svg class="logo-atlas" viewBox="3 0 100 100" width="52" height="52" aria-hidden="true" focusable="false"><defs><linearGradient id="lg1-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#0891b2"/></linearGradient><linearGradient id="lg2-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#06b6d4"/></linearGradient><linearGradient id="lg3-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#6366f1"/></linearGradient><linearGradient id="lg4-2" x1="0" y1="20" x2="0" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs><rect x="8" y="40" width="16" height="40" rx="3" fill="url(#lg1-2)"/><rect x="28" y="28" width="16" height="52" rx="3" fill="url(#lg2-2)"/><rect x="48" y="36" width="16" height="36" rx="3" fill="url(#lg3-2)"/><path d="M64 20 A30 30 0 0 1 64 80" fill="none" stroke="url(#lg4-2)" stroke-width="8" stroke-linecap="round"/></svg>
       <div>
         <h1 class="text-2xl font-extrabold"><span class="brand-gradient">Atlas DD</span></h1>
-        <p class="text-xs mt-0.5" style="color:var(--muted);">Dashboard de Demandas • versão 13</p>
+        <p class="text-xs mt-0.5" style="color:var(--muted);">Dashboard de Demandas • versão 14</p>
       </div>
     </div>
     <form id="form-login" class="space-y-3">
@@ -392,6 +392,22 @@ tr.linha-parada td:first-child{box-shadow:inset 3px 0 0 #fbbf24;}
   </div>
 </div>
 </div>
+
+<div id="atalhos-ajuda" class="oculto" role="dialog" aria-modal="true" aria-labelledby="atalhos-titulo">
+  <div class="caixa">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <h2 id="atalhos-titulo" style="font-size:15px;font-weight:700;">⌨ Atalhos de teclado</h2>
+      <button type="button" id="btn-fechar-atalhos" class="btn-sec" aria-label="Fechar">✕</button>
+    </div>
+    <div class="linha"><span>Nova demanda</span><span class="teclas"><kbd>N</kbd></span></div>
+    <div class="linha"><span>Buscar na lista</span><span class="teclas"><kbd>/</kbd></span></div>
+    <div class="linha"><span>Salvar o formulário</span><span class="teclas"><kbd>Ctrl</kbd><kbd>Enter</kbd></span></div>
+    <div class="linha"><span>Cancelar edição / limpar busca e filtros / fechar</span><span class="teclas"><kbd>Esc</kbd></span></div>
+    <div class="linha"><span>Recarregar demandas</span><span class="teclas"><kbd>R</kbd></span></div>
+    <div class="linha"><span>Mostrar esta ajuda</span><span class="teclas"><kbd>?</kbd></span></div>
+  </div>
+</div>
+<div id="toasts" aria-live="polite" aria-atomic="false"></div>
 
 <script>
 /* =====================================================================
@@ -1139,20 +1155,5 @@ const SUPABASE_KEY = 'sb_publishable_P4EYEs47Kd9OK2NmivW-Rg_vj_7yoEs';    // ano
   }
 })();
 </script>
-<div id="atalhos-ajuda" class="oculto" role="dialog" aria-modal="true" aria-labelledby="atalhos-titulo">
-  <div class="caixa">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <h2 id="atalhos-titulo" style="font-size:15px;font-weight:700;">⌨ Atalhos de teclado</h2>
-      <button type="button" id="btn-fechar-atalhos" class="btn-sec" aria-label="Fechar">✕</button>
-    </div>
-    <div class="linha"><span>Nova demanda</span><span class="teclas"><kbd>N</kbd></span></div>
-    <div class="linha"><span>Buscar na lista</span><span class="teclas"><kbd>/</kbd></span></div>
-    <div class="linha"><span>Salvar o formulário</span><span class="teclas"><kbd>Ctrl</kbd><kbd>Enter</kbd></span></div>
-    <div class="linha"><span>Cancelar edição / limpar busca e filtros / fechar</span><span class="teclas"><kbd>Esc</kbd></span></div>
-    <div class="linha"><span>Recarregar demandas</span><span class="teclas"><kbd>R</kbd></span></div>
-    <div class="linha"><span>Mostrar esta ajuda</span><span class="teclas"><kbd>?</kbd></span></div>
-  </div>
-</div>
-<div id="toasts" aria-live="polite" aria-atomic="false"></div>
 </body>
 </html>
